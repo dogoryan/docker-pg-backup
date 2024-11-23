@@ -1,7 +1,7 @@
 ##############################################################################
 # Production Stage                                                           #
 ##############################################################################
-ARG POSTGRES_MAJOR_VERSION
+ARG POSTGRES_MAJOR_VERSION=latest
 
 FROM postgres:${POSTGRES_MAJOR_VERSION}
 
