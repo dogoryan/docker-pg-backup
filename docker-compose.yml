@@ -1,39 +1,26 @@
 
 volumes:
   db-backups:
-  db-data:
 
 services:
-  db:
-    image: kartoza/postgis:$POSTGRES_MAJOR_VERSION-$POSTGIS_MAJOR_VERSION.${POSTGIS_MINOR_RELEASE}
-    volumes:
-      - db-data:/var/lib/postgresql
-    environment:
-      - POSTGRES_DB=gis
-      - POSTGRES_USER=docker
-      - POSTGRES_PASS=docker
-      - ALLOW_IP_RANGE=0.0.0.0/0
-      - POSTGRES_MULTIPLE_EXTENSIONS=postgis,hstore,postgis_topology,postgis_raster,pgrouting
-    restart: on-failure
-    healthcheck:
-      test: "PGPASSWORD=$${POSTGRES_PASS} pg_isready -h 127.0.0.1 -U docker -d gis"
-
   dbbackups:
-    image: kartoza/pg-backup:$POSTGRES_MAJOR_VERSION-$POSTGIS_MAJOR_VERSION.${POSTGIS_MINOR_RELEASE}
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args: 
+        POSTGRES_MAJOR_VERSION: "${POSTGRES_MAJOR_VERSION}"
+    image: dbbackups_image:${POSTGRES_MAJOR_VERSION}
     volumes:
       - db-backups:/backups
     environment:
       - DUMPPREFIX=PG
-      - POSTGRES_HOST=db
-      - POSTGRES_USER=docker
-      - POSTGRES_PASS=docker
-      - POSTGRES_PORT=5432
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASS=${POSTGRES_PASS}
+      - POSTGRES_PORT=${POSTGRES_PORT}
       - RUN_AS_ROOT=true
       - CRON_SCHEDULE="*/5 * * * *"
-      #- CONSOLE_LOGGING=TRUE
+      - CONSOLE_LOGGING=TRUE
       #- DB_DUMP_ENCRYPTION=true
       #- DB_TABLES=TRUE
     restart: on-failure
-    depends_on:
-      db:
-        condition: service_healthy

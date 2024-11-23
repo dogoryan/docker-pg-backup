@@ -1,15 +1,17 @@
 #!/usr/bin/env bash
 
 if [[ ! -f .env ]]; then
-    echo "Default build arguments don't exists. Creating one from default value."
-    cp .example.env .env
+    echo "Error: .env file does not exist. Please create it from .example.env." >&2
+    exit 1
+else
+    export $(grep -v '^#' .env | xargs)
 fi
 
-docker pull kartoza/postgis:$POSTGRES_MAJOR_VERSION-$POSTGIS_MAJOR_VERSION.${POSTGIS_MINOR_RELEASE}
+#Мб поставить образ пг? 
+docker pull postgres:$POSTGRES_MAJOR_VERSION
 
-if [[ $(dpkg -l | grep "docker-compose") > /dev/null ]];then
-
-  docker-compose -f docker-compose.build.yml build postgis-backup-prod
+if command -v docker-compose > /dev/null; then
+  docker-compose -f docker-compose.yml build dbbackups
 else
-  docker compose -f docker-compose.build.yml build postgis-backup-prod
+  docker compose -f docker-compose.yml build dbbackups
 fi
