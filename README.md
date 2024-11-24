@@ -26,7 +26,7 @@ docker compose up -d
 
 
 ```
-TARGET_ARCHIVE=/backups/2024/November/PG_prod.23-November-2024.dmp \
+TARGET_ARCHIVE=/backups/2024/November/PG_postgres.24-November-2024.dmp \
 RESTORE_TARGET_POSTGRES_DB=your_database \
 ./restore.sh
 ```

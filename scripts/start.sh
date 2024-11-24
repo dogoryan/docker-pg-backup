@@ -138,7 +138,7 @@ if [ -z "${DBLIST}" ]; then
   until PGPASSWORD=${POSTGRES_PASS} pg_isready ${PG_CONN_PARAMETERS}; do
     sleep 1
   done
-  DBLIST=$(PGPASSWORD=${POSTGRES_PASS} psql ${PG_CONN_PARAMETERS} -l | awk '$1 !~ /[+(|:]|Name|List|template|postgres/ {print $1}')
+  DBLIST=$(PGPASSWORD=${POSTGRES_PASS} psql ${PG_CONN_PARAMETERS} -l | awk '$1 !~ /[+(|:]|Name|List|template/ {print $1}')
 fi
 
 if [ -z "${RUN_ONCE}" ]; then
@@ -214,6 +214,7 @@ cron_config
 function configure_env_variables() {
 echo "
 export PATH=\"${PATH}\"
+export PGPASSWORD=\"${POSTGRES_PASS}\"
 export EXTRA_CONF_DIR=\"${EXTRA_CONF_DIR}\"
 export STORAGE_BACKEND=\"${STORAGE_BACKEND}\"
 export ACCESS_KEY_ID=\"${ACCESS_KEY_ID}\"
@@ -244,6 +245,8 @@ export RESTORE_PG_CONN_PARAMETERS=\"${RESTORE_PG_CONN_PARAMETERS}\"
 export DBLIST=\"${DBLIST}\"
 export DB_TABLES=\"${DB_TABLES}\"
  " > /backup-scripts/pgenv.sh
+
+chmod +x /backup-scripts/pgenv.sh
 
 echo "Start script running with these environment options"
 set | grep PG

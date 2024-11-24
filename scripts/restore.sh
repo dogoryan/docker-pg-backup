@@ -52,10 +52,21 @@ function file_restore() {
 
     echo "Restoring dump file"
     if [[ "${DB_DUMP_ENCRYPTION}" =~ [Tt][Rr][Uu][Ee] ]]; then
-        openssl enc -d -aes-256-cbc -pass pass:${DB_DUMP_ENCRYPTION_PASS_PHRASE} -pbkdf2 -iter 10000 -md sha256 -in ${TARGET_ARCHIVE} -out /tmp/decrypted.dump.gz | PGPASSWORD=${RESTORE_TARGET_POSTGRES_PASS} pg_restore ${RESTORE_PG_CONN_PARAMETERS} /tmp/decrypted.dump.gz -d ${RESTORE_TARGET_POSTGRES_DB} ${RESTORE_ARGS}
+        openssl enc -d -aes-256-cbc -pass pass:${DB_DUMP_ENCRYPTION_PASS_PHRASE} -pbkdf2 -iter 10000 -md sha256 -in ${TARGET_ARCHIVE} -out /tmp/decrypted.dump.gz | \
+        PGPASSWORD=${RESTORE_TARGET_POSTGRES_PASS} pg_restore ${RESTORE_PG_CONN_PARAMETERS} \
+            --no-owner \
+            --no-acl \
+            /tmp/decrypted.dump.gz \
+            -d ${RESTORE_TARGET_POSTGRES_DB} \
+            ${RESTORE_ARGS}
         rm /tmp/decrypted.dump.gz
     else
-        PGPASSWORD=${RESTORE_TARGET_POSTGRES_PASS} pg_restore ${RESTORE_PG_CONN_PARAMETERS} ${TARGET_ARCHIVE} -d ${RESTORE_TARGET_POSTGRES_DB} ${RESTORE_ARGS}
+        PGPASSWORD=${RESTORE_TARGET_POSTGRES_PASS} pg_restore ${RESTORE_PG_CONN_PARAMETERS} \
+            --no-owner \
+            --no-acl \
+            ${TARGET_ARCHIVE} \
+            -d ${RESTORE_TARGET_POSTGRES_DB} \
+            ${RESTORE_ARGS}
     fi
 }
 
